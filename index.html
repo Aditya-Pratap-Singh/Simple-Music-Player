@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css" />
+
+    <div class="bg-container">
+        <img src="" alt="" id="background">
+    </div>
+    <div class="player-container">
+        <div class="img-container">
+            <img src="" alt="" id="cover" class="active">
+        </div>
+        <h2 id="title"></h2>
+        <h3 id="artist"></h3>
+        <audio src=""></audio>
+        <div class="progress-container" id="progress-container">
+            <div class="progress" id="progress"></div>
+            <div class="duration-wrapper">
+                <span id="current-time"></span>
+                <span id="duration"></span>
+            </div>
+        </div>
+        <div class="player-controls">
+            <i class="fas fa-backward" id="prev" title="Previous"></i>
+            <i class="fas fa-play main-button" id="play" title="Play"></i>
+            <i class="fas fa-forward" id="next" title="Next"></i>
+        </div>
+    </div>
+
+    <script>
+        const image = document.querySelector('#cover');
+        const title = document.getElementById('title');
+        const artist = document.getElementById('artist');
+        const music = document.querySelector('audio');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        const progress = document.getElementById('progress');
+        const progressContainer = document.getElementById('progress-container');
+        const prevBtn = document.getElementById('prev');
+        const playBtn = document.getElementById('play');
+        const nextBtn = document.getElementById('next');
+        const background = document.getElementById("background");
+        const songs = [{
+            path: 'https://raw.githubusercontent.com/Aditya-Pratap-Singh/Simple-Music-Player/main/Assets/Music/Bag%20Raiders%20-%20Shooting%20Stars.mp3',
+            displayName: 'Shooting Stars',
+            artist: 'Bag Raiders',
+            cover: "https://images.genius.com/0a70cb2ca789ab0dfe008cc47fbdab1f.1000x1000x1.jpg",
+        }, {
+            path: 'https://raw.githubusercontent.com/Aditya-Pratap-Singh/Simple-Music-Player/main/Assets/Music/LORDE%20-%20Royals.mp3',
+            displayName: 'Royals',
+            artist: 'Lorde',
+            cover: "https://live.staticflickr.com/2934/33132403451_05c26f828f_b.jpg",
+        }, {
+            path: 'https://raw.githubusercontent.com/Aditya-Pratap-Singh/Simple-Music-Player/main/Assets/Music/Sub%20Urban%20-%20Cradles%20%5BOFFICIAL%20MUSIC%20VIDEO%5D.mp3',
+            displayName: 'Cradles',
+            artist: 'Sub Urban',
+            cover: "https://static.mixupload.com/n5/media/track/3146/938/cover_orig.jpg?965",
+        }, {
+            path: 'https://raw.githubusercontent.com/Aditya-Pratap-Singh/Simple-Music-Player/main/Assets/Music/The%20Decemberists%20-%20Severed.mp3',
+            displayName: 'Severed',
+            artist: 'The Decemberists',
+            cover: "https://i.ytimg.com/vi/ksTFj6L0mao/maxresdefault.jpg",
+        }, {
+            path: 'https://raw.githubusercontent.com/Aditya-Pratap-Singh/Simple-Music-Player/main/Assets/Music/Daya%20-%20Sit%20Still%2C%20Look%20Pretty.mp3',
+            displayName: 'Sit Still, Look Pretty',
+            artist: 'Daya',
+            cover: "http://hasitleaked.com/wp-content/uploads/2016/08/SitStillLookPretty.jpg",
+        }, ];
+
+        let isPlaying = false;
+
+        function playSong() {
+            isPlaying = true;
+            playBtn.classList.replace('fa-play', 'fa-pause');
+            playBtn.setAttribute('title', 'Pause');
+            music.play();
+        }
+
+        function pauseSong() {
+            isPlaying = false;
+            playBtn.classList.replace('fa-pause', 'fa-play');
+            playBtn.setAttribute('title', 'Play');
+            music.pause();
+        }
+
+        playBtn.addEventListener('click', () => (isPlaying ? pauseSong() : playSong()));
+
+        function loadSong(song) {
+            title.textContent = song.displayName;
+            artist.textContent = song.artist;
+            music.src = song.path;
+            changeCover(song.cover);
+        }
+
+        function changeCover(cover) {
+            image.classList.remove('active');
+            setTimeout(() => {
+                image.src = cover;
+                image.classList.add('active');
+            }, 100)
+            background.src = cover;
+        }
+
+        let songIndex = 0;
+
+        function prevSong() {
+            songIndex--;
+            if (songIndex < 0) {
+                songIndex = songs.length - 1;
+            }
+            loadSong(songs[songIndex]);
+            playSong();
+        }
+
+        function nextSong() {
+            songIndex++;
+            if (songIndex > songs.length - 1) {
+                songIndex = 0;
+            }
+            loadSong(songs[songIndex]);
+            playSong();
+        }
+
+        loadSong(songs[songIndex]);
+
+        function updateProgressBar(e) {
+            if (isPlaying) {
+                const {
+                    duration,
+                    currentTime
+                } = e.srcElement;
+                const progressPercent = (currentTime / duration) * 100;
+                progress.style.width = `${progressPercent}%`;
+                const durationMinutes = Math.floor(duration / 60);
+                let durationSeconds = Math.floor(duration % 60);
+                if (durationSeconds < 10) {
+                    durationSeconds = `0${durationSeconds}`;
+                }
+                const currentMinutes = Math.floor(currentTime / 60);
+                let currentSeconds = Math.floor(currentTime % 60);
+                if (currentSeconds < 10) {
+                    currentSeconds = `0${currentSeconds}`;
+                }
+                currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
+            }
+        }
+
+        function setProgressBar(e) {
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            const {
+                duration
+            } = music;
+            music.currentTime = (clickX / width) * duration;
+        }
+        prevBtn.addEventListener('click', prevSong);
+        nextBtn.addEventListener('click', nextSong);
+        music.addEventListener('ended', nextSong);
+        music.addEventListener('timeupdate', updateProgressBar);
+        progressContainer.addEventListener('click', setProgressBar);
+    </script>
+
+</body>
+
+</html>
