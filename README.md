@@ -1,7 +1,8 @@
 # Simple-Music-Player
 
 
-You can play/pause/move forward/backward from the selected list of music stored in online repo
+You can play/pause/move forward/backward from the selected list of music stored in online repo.
+Made with HTML5,CSS3,JavaScript
 
 Screenshot:
 
